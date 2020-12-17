@@ -36,3 +36,13 @@ func (rc *RestClient) PostForm(path string, data url.Values) (*http.Response, er
 	// make the request
 	return rc.httpClient.PostForm(url, data)
 }
+
+// Head is a wrapper function for http.Client Head function
+// It uses the base url and the path to construct the post url
+// TODO: Make sure authentication and tokens work
+func (rc *RestClient) Head(path string) (*http.Response, error) {
+	// gen url
+	url := rc.makeURL(path)
+	//make the request
+	return rc.httpClient.Head(url)
+}
