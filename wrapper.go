@@ -74,3 +74,21 @@ func NewInsecure(host string) RestClient {
 		http.DefaultClient,
 	}
 }
+
+// NewWithClient wraps the RestClient around
+// an existing http client (example you could set a timeout)
+func NewWithClient(host string, client *http.Client) RestClient {
+	// Custom
+	return RestClient{
+		makeBaseURL(false, host), client,
+	}
+}
+
+// NewWithClientInsecure is the same as NewWithClient
+// but uses http instead of https
+func NewWithClientInsecure(host string, client *http.Client) RestClient {
+	// Custom
+	return RestClient{
+		makeBaseURL(true, host), client,
+	}
+}
