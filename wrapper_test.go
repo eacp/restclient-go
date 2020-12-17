@@ -1,6 +1,7 @@
 package restclient
 
 import (
+	"net/http"
 	"testing"
 )
 
@@ -76,6 +77,37 @@ func TestRestClient_makeURL(t *testing.T) {
 		t.Run(tt.path, func(t *testing.T) {
 			if got := c.makeURL(tt.path); got != tt.want {
 				t.Errorf("RestClient.makeURL() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNew(t *testing.T) {
+	tests := []struct {
+		host string
+		want RestClient
+	}{
+		{
+			"api.github.com",
+			RestClient{
+				"https://api.github.com/",
+				http.DefaultClient,
+			},
+		},
+		{
+			"example.herokuapp.com",
+			RestClient{
+				"https://example.herokuapp.com/",
+				http.DefaultClient,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.host, func(t *testing.T) {
+			got := New(tt.host)
+			want := tt.want
+			if got.httpClient != want.httpClient || got.baseURL != want.baseURL {
+				t.Errorf("New() = %v, want %v", got, tt.want)
 			}
 		})
 	}
