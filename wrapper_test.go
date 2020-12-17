@@ -112,3 +112,34 @@ func TestNew(t *testing.T) {
 		})
 	}
 }
+
+func TestNewLocalhost(t *testing.T) {
+	tests := []struct {
+		name, port string
+		wantRc     RestClient
+	}{
+		{
+			"Test with ':'", ":8080",
+			RestClient{
+				"http://localhost:8080/",
+				http.DefaultClient,
+			},
+		},
+		{
+			"Test without ':'", "8080",
+			RestClient{
+				"http://localhost:8080/",
+				http.DefaultClient,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := NewLocalhost(tt.port)
+			r := tt.wantRc
+			if g.baseURL != r.baseURL || g.httpClient != r.httpClient {
+				t.Errorf("NewLocalhost() = %v, want %v", g, tt.wantRc)
+			}
+		})
+	}
+}

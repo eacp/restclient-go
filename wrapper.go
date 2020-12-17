@@ -43,3 +43,20 @@ func New(host string) RestClient {
 		http.DefaultClient,
 	}
 }
+
+// NewLocalhost is a conveniance constructor
+// that makes http calls to localhost using a specific
+// port and http instead of https
+func NewLocalhost(port string) (rc RestClient) {
+	rc.httpClient = http.DefaultClient
+
+	// If the user writes the ':' before the
+	// port number then use only the number after
+	if port[0] == ':' {
+		rc.baseURL = makeBaseURL(true, "localhost"+port)
+	} else {
+		rc.baseURL = makeBaseURL(true, "localhost:"+port)
+	}
+
+	return
+}
