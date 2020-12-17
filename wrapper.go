@@ -60,3 +60,17 @@ func NewLocalhost(port string) (rc RestClient) {
 
 	return
 }
+
+// NewInsecure returns a new rest client
+// that uses the Default HTTP Client
+// witha timeout of x seconds
+// and configures the base url according
+// to the host
+// Uses HTTP instead of HTTPS
+func NewInsecure(host string) RestClient {
+	// Default settings
+	return RestClient{
+		makeBaseURL(true, host),
+		http.DefaultClient,
+	}
+}

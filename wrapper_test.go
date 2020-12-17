@@ -143,3 +143,34 @@ func TestNewLocalhost(t *testing.T) {
 		})
 	}
 }
+
+func TestNewInsecure(t *testing.T) {
+	tests := []struct {
+		host string
+		want RestClient
+	}{
+		{
+			"api.github.com",
+			RestClient{
+				"http://api.github.com/",
+				http.DefaultClient,
+			},
+		},
+		{
+			"example.herokuapp.com",
+			RestClient{
+				"http://example.herokuapp.com/",
+				http.DefaultClient,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.host, func(t *testing.T) {
+			got := NewInsecure(tt.host)
+			want := tt.want
+			if got.httpClient != want.httpClient || got.baseURL != want.baseURL {
+				t.Errorf("New() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
