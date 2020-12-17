@@ -2,6 +2,7 @@ package restclient
 
 import (
 	"net/http"
+	"time"
 )
 
 // RestClient is a wrapper for an http client
@@ -91,4 +92,13 @@ func NewWithClientInsecure(host string, client *http.Client) RestClient {
 	return RestClient{
 		makeBaseURL(true, host), client,
 	}
+}
+
+// NewWithTimeout creates a RestClient with a specific
+// timeout
+func NewWithTimeout(host string, timeout time.Duration) RestClient {
+	// Create a client with a timeout and pass
+	// it to the CreateWithClient function
+	client := &http.Client{Timeout: timeout}
+	return NewWithClient(host, client)
 }

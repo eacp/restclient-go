@@ -3,6 +3,7 @@ package restclient
 import (
 	"net/http"
 	"testing"
+	"time"
 )
 
 func Test_makeBaseURL(t *testing.T) {
@@ -171,6 +172,107 @@ func TestNewInsecure(t *testing.T) {
 			if got.httpClient != want.httpClient || got.baseURL != want.baseURL {
 				t.Errorf("New() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func TestNewWithClient(t *testing.T) {
+	// Create a custom http client here
+	customClient := &http.Client{
+		Timeout: time.Minute,
+	}
+
+	tests := []struct {
+		host string
+		want RestClient
+	}{
+		{
+			"api.github.com",
+			RestClient{
+				"https://api.github.com/",
+				customClient,
+			},
+		},
+		{
+			"example.herokuapp.com",
+			RestClient{
+				"https://example.herokuapp.com/",
+				customClient,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.host, func(t *testing.T) {
+			got := NewWithClient(tt.host, customClient)
+			want := tt.want
+			if got.httpClient != want.httpClient || got.baseURL != want.baseURL {
+				t.Errorf("New() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewWithClientInsecure(t *testing.T) {
+	// Create a custom http client here
+	customClient := &http.Client{
+		Timeout: time.Minute,
+	}
+
+	tests := []struct {
+		host string
+		want RestClient
+	}{
+		{
+			"api.github.com",
+			RestClient{
+				"http://api.github.com/",
+				customClient,
+			},
+		},
+		{
+			"example.herokuapp.com",
+			RestClient{
+				"http://example.herokuapp.com/",
+				customClient,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.host, func(t *testing.T) {
+			got := NewWithClientInsecure(tt.host, customClient)
+			want := tt.want
+			if got.httpClient != want.httpClient || got.baseURL != want.baseURL {
+				t.Errorf("New() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewWithTimeout(t *testing.T) {
+	// We will only test if the internal http client
+	// has the correct timeout
+
+	type args struct {
+		host    string
+		timeout time.Duration
+	}
+	tests := []args{
+		{"api.github.com", time.Minute},
+		{"slow-api.example.com", time.Minute * 5},
+	}
+	for _, tt := range tests {
+		t.Run(tt.host, func(t *testing.T) {
+			/*if got := NewWithTimeout(tt.args.host, tt.args.timeout); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewWithTimeout() = %v, want %v", got, tt.want)
+			}*/
+
+			got := NewWithTimeout(tt.host, tt.timeout)
+			hc := got.httpClient
+
+			if hc.Timeout != tt.timeout {
+				t.Errorf("NewWithTimeout() = %v, want %v", got, tt.timeout)
+			}
+
 		})
 	}
 }
