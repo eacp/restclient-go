@@ -87,6 +87,78 @@ func TestRestClient_Get(t *testing.T) {
 	}
 }
 
+func TestRestClient_Head(t *testing.T) {
+
+	good := goodClient()
+	bad := badClient()
+
+	tests := []struct {
+		name    string
+		rc      *RestClient
+		path    string
+		want    responseWantData
+		wantErr bool
+	}{
+		// Good test: query mit license from github
+		{
+			"Licenses Request github (good domain)", &good,
+			"licenses/mit",
+			responseWantData{
+				http.StatusOK,
+				http.MethodHead,
+				"https://api.github.com/licenses/mit",
+			},
+			false, // No error
+		},
+
+		// Good test: query all licenses from github
+		{
+			"Licenses Request github (good domain)", &good,
+			"licenses",
+			responseWantData{
+				http.StatusOK,
+				http.MethodHead,
+				"https://api.github.com/licenses",
+			},
+			false, // No error
+		},
+
+		// Bad test: query all licenses from github
+		{
+			"Licenses Request github (bad domain)", &bad,
+			"licenses",
+			responseWantData{
+				0,
+				http.MethodHead,
+				"https://bad-api.github.com/licenses",
+			},
+			true, // Error cuz domain does not exist
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.rc.Head(tt.path)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("RestClient.Head() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			/*if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("RestClient.Get() = %v, want %v", got, tt.want)
+			}*/
+
+			if tt.wantErr {
+				t.Log("In this test we do not evaluete the repsonde, cuz there is none")
+				return
+			}
+
+			if !tt.want.eq(got) {
+				t.Errorf("RestClient.Head() = %v, want %v", got, tt.want)
+			}
+
+		})
+	}
+}
+
 type responseWantData struct {
 	status          int
 	method, fullURL string
